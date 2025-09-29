@@ -1,12 +1,44 @@
-<div class="container">
-    <h1>My Productivity Dashboard</h1>
-    <p>This is working now!</p>
-    
-    <!-- Add features here -->
-    <div class="task-manager">
-        <h2>Task Manager</h2>
-        <input type="text" id="taskInput" placeholder="Add a new task...">
-        <button onclick="addTask()">Add Task</button>
-        <ul id="taskList"></ul>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Productivity Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>My Productivity Dashboard</h1>
+            <p>Stay organized and productive!</p>
+        </header>
+
+        <!-- Task Manager Section -->
+        <section class="task-manager">
+            <h2>📝 Task Manager</h2>
+            <div class="task-input">
+                <input type="text" id="taskInput" placeholder="What needs to be done?">
+                <button onclick="addTask()">Add Task</button>
+            </div>
+            <ul id="taskList" class="task-list"></ul>
+        </section>
+
+        <!-- Stats Section -->
+        <section class="stats">
+            <h2>📊 Today's Stats</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3 id="totalTasks">0</h3>
+                    <p>Total Tasks</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="completedTasks">0</h3>
+                    <p>Completed</p>
+                </div>
+            </div>
+        </section>
     </div>
-</div>
+
+    <script src="script.js"></script>
+</body>
+</html>
