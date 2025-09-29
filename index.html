@@ -3,72 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FlowState Dashboard</title>
+    <title>Productivity Dashboard</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="glass-container">
-        <!-- AI Focus Assistant -->
-        <div class="ai-assistant">
-            <div class="ai-header">
-                <span class="pulse-dot"></span>
-                <h3>Focus AI</h3>
-            </div>
-            <div class="ai-suggestions" id="aiSuggestions">
-                <!-- AI will suggest tasks here -->
-            </div>
-        </div>
+    <div class="dashboard">
+        <!-- Header -->
+        <header class="header">
+            <h1>🚀 Productivity Dashboard</h1>
+            <div class="current-time" id="currentTime"></div>
+        </header>
 
-        <!-- Time Block Visualizer -->
-        <div class="time-blocks">
-            <h2>Day Flow</h2>
-            <div class="timeline" id="timeline">
-                <!-- Time blocks will appear here -->
-            </div>
-        </div>
-
-        <!-- Energy Level Tracker -->
-        <div class="energy-tracker">
-            <h2>Mental Energy</h2>
-            <div class="energy-levels">
-                <div class="energy-bar" data-level="1">😴 Low</div>
-                <div class="energy-bar" data-level="2">😊 Medium</div>
-                <div class="energy-bar active" data-level="3">🚀 High</div>
-                <div class="energy-bar" data-level="4">🔥 Peak</div>
-            </div>
-        </div>
-
-        <!-- Smart Task Input -->
-        <div class="smart-input-section">
-            <div class="voice-input">
-                <button id="voiceBtn">🎤</button>
-                <input type="text" id="smartTaskInput" placeholder="What's on your mind? Or click mic...">
-                <button id="aiAnalyzeBtn">✨ AI Analyze</button>
-            </div>
-        </div>
-
-        <!-- Progress Rings -->
-        <div class="progress-rings">
-            <div class="ring-container">
-                <svg class="progress-ring" width="120" height="120">
-                    <circle class="ring-bg" cx="60" cy="60" r="50"></circle>
-                    <circle class="ring-progress" cx="60" cy="60" r="50"></circle>
-                </svg>
-                <div class="ring-content">
-                    <span id="focusScore">85%</span>
-                    <small>Focus Score</small>
+        <!-- Main Grid -->
+        <div class="grid-container">
+            <!-- Task Manager -->
+            <div class="card task-manager">
+                <h2>📝 Task Manager</h2>
+                <div class="task-input">
+                    <input type="text" id="taskInput" placeholder="Add a new task...">
+                    <button onclick="addTask()">Add Task</button>
+                </div>
+                <div class="task-list" id="taskList">
+                    <!-- Tasks will appear here -->
+                </div>
+                <div class="task-stats">
+                    <span>Total: <span id="totalTasks">0</span></span>
+                    <span>Completed: <span id="completedTasks">0</span></span>
                 </div>
             </div>
-        </div>
 
-        <!-- Mood & Context -->
-        <div class="context-section">
-            <h3>Current Context</h3>
-            <div class="mood-selector">
-                <div class="mood-option" data-mood="focus">🔍 Deep Focus</div>
-                <div class="mood-option" data-mood="creative">🎨 Creative Flow</div>
-                <div class="mood-option active" data-mood="learning">📚 Learning</div>
-                <div class="mood-option" data-mood="planning">📋 Planning</div>
+            <!-- Pomodoro Timer -->
+            <div class="card timer">
+                <h2>⏱️ Focus Timer</h2>
+                <div class="timer-display" id="timerDisplay">25:00</div>
+                <div class="timer-controls">
+                    <button onclick="startTimer()">Start</button>
+                    <button onclick="pauseTimer()">Pause</button>
+                    <button onclick="resetTimer()">Reset</button>
+                </div>
+                <div class="timer-sessions">
+                    <span>Sessions: <span id="sessionCount">0</span></span>
+                </div>
+            </div>
+
+            <!-- Daily Stats -->
+            <div class="card stats">
+                <h2>📊 Today's Stats</h2>
+                <div class="stat-cards">
+                    <div class="stat-card">
+                        <div class="stat-number" id="focusTime">0h 0m</div>
+                        <div class="stat-label">Focus Time</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="tasksCompleted">0</div>
+                        <div class="stat-label">Tasks Done</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="productivityScore">0%</div>
+                        <div class="stat-label">Productivity</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Notes -->
+            <div class="card notes">
+                <h2>📓 Quick Notes</h2>
+                <textarea id="notesInput" placeholder="Take quick notes here..."></textarea>
+                <button onclick="saveNotes()">Save Notes</button>
+            </div>
+
+            <!-- Habit Tracker -->
+            <div class="card habits">
+                <h2>✅ Daily Habits</h2>
+                <div class="habit-list" id="habitList">
+                    <div class="habit-item">
+                        <span>Morning Exercise</span>
+                        <button class="habit-btn" onclick="toggleHabit(0)">○</button>
+                    </div>
+                    <div class="habit-item">
+                        <span>Read 30 mins</span>
+                        <button class="habit-btn" onclick="toggleHabit(1)">○</button>
+                    </div>
+                    <div class="habit-item">
+                        <span>Plan Tomorrow</span>
+                        <button class="habit-btn" onclick="toggleHabit(2)">○</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

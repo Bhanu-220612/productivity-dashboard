@@ -1,163 +1,175 @@
-// AI Suggestions based on time and mood
-const aiSuggestions = {
-    morning: ["Plan your day", "Review goals", "Exercise session", "Deep work block"],
-    afternoon: ["Lunch break", "Creative work", "Meetings", "Learning time"],
-    evening: ["Review progress", "Plan tomorrow", "Relaxation", "Reading"],
-    focus: ["Pomodoro sessions", "Distraction-free work", "Single task focus"],
-    creative: ["Brainstorming", "Idea generation", "Prototype building"],
-    learning: ["Study session", "Practice coding", "Watch tutorials"],
-    planning: ["Goal setting", "Task prioritization", "Schedule review"]
-};
+// Task Management
+let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+let timer;
+let timerTime = 25 * 60; // 25 minutes in seconds
+let isTimerRunning = false;
+let sessionsCompleted = 0;
+let totalFocusTime = 0;
 
-// Initialize the dashboard
+// Initialize dashboard
 function initDashboard() {
-    updateAISuggestions();
-    createTimeBlocks();
-    setupEventListeners();
-    updateFocusScore();
+    updateTime();
+    loadTasks();
+    updateStats();
+    loadNotes();
+    setInterval(updateTime, 1000);
 }
 
-// AI Suggestion Engine
-function updateAISuggestions() {
-    const hour = new Date().getHours();
-    let timeOfDay = 'morning';
-    if (hour >= 12 && hour < 17) timeOfDay = 'afternoon';
-    if (hour >= 17) timeOfDay = 'evening';
+// Update current time
+function updateTime() {
+    const now = new Date();
+    document.getElementById('currentTime').textContent = now.toLocaleString();
+}
 
-    const currentMood = document.querySelector('.mood-option.active').dataset.mood;
+// Task Functions
+function addTask() {
+    const taskInput = document.getElementById('taskInput');
+    const text = taskInput.value.trim();
     
-    const suggestions = [
-        ...aiSuggestions[timeOfDay].slice(0, 2),
-        ...aiSuggestions[currentMood].slice(0, 2)
-    ];
-
-    const aiContainer = document.getElementById('aiSuggestions');
-    aiContainer.innerHTML = suggestions.map(suggestion => 
-        `<div class="suggestion">${suggestion}</div>`
-    ).join('');
-}
-
-// Create interactive time blocks
-function createTimeBlocks() {
-    const timeline = document.getElementById('timeline');
-    for (let i = 0; i < 12; i++) {
-        const block = document.createElement('div');
-        block.className = 'time-block';
-        block.addEventListener('click', () => scheduleTimeBlock(i));
-        timeline.appendChild(block);
-    }
-}
-
-// Voice Recognition
-function setupVoiceRecognition() {
-    const voiceBtn = document.getElementById('voiceBtn');
-    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    if (text === '') return;
     
-    recognition.continuous = false;
-    recognition.lang = 'en-US';
-
-    voiceBtn.addEventListener('click', () => {
-        recognition.start();
-        voiceBtn.style.background = '#10b981';
-    });
-
-    recognition.onresult = (event) => {
-        const transcript = event.results[0][0].transcript;
-        document.getElementById('smartTaskInput').value = transcript;
-        voiceBtn.style.background = 'var(--primary)';
-        analyzeTaskWithAI(transcript);
+    const task = {
+        id: Date.now(),
+        text: text,
+        completed: false,
+        createdAt: new Date()
     };
-}
-
-// AI Task Analysis
-function analyzeTaskWithAI(taskText) {
-    // Simulate AI analysis
-    const complexity = taskText.length > 50 ? 'Complex' : 'Simple';
-    const estimatedTime = Math.max(15, Math.min(120, taskText.length * 2));
     
-    showAIAnalysis({
-        complexity,
-        estimatedTime,
-        priority: taskText.includes('urgent') ? 'High' : 'Normal',
-        suggestedTime: getOptimalTime()
-    });
+    tasks.push(task);
+    taskInput.value = '';
+    saveTasks();
+    loadTasks();
+    updateStats();
 }
 
-function showAIAnalysis(analysis) {
-    const suggestion = `AI Analysis: ${analysis.complexity} task, ${analysis.estimatedTime}min, ${analysis.priority} priority`;
-    const aiContainer = document.getElementById('aiSuggestions');
-    aiContainer.innerHTML = `<div class="suggestion highlight">${suggestion}</div>` + aiContainer.innerHTML;
+function deleteTask(id) {
+    tasks = tasks.filter(task => task.id !== id);
+    saveTasks();
+    loadTasks();
+    updateStats();
 }
 
-// Energy Level Tracking
-function setupEnergyTracking() {
-    const energyBars = document.querySelectorAll('.energy-bar');
-    energyBars.forEach(bar => {
-        bar.addEventListener('click', () => {
-            energyBars.forEach(b => b.classList.remove('active'));
-            bar.classList.add('active');
-            updateFocusScore();
-        });
-    });
-}
-
-// Mood Selection
-function setupMoodSelection() {
-    const moodOptions = document.querySelectorAll('.mood-option');
-    moodOptions.forEach(option => {
-        option.addEventListener('click', () => {
-            moodOptions.forEach(m => m.classList.remove('active'));
-            option.classList.add('active');
-            updateAISuggestions();
-            updateFocusScore();
-        });
-    });
-}
-
-// Dynamic Focus Score
-function updateFocusScore() {
-    const energyLevel = document.querySelector('.energy-bar.active').dataset.level;
-    const mood = document.querySelector('.mood-option.active').dataset.mood;
-    
-    const energyScore = (energyLevel / 4) * 50;
-    const moodScore = mood === 'focus' ? 35 : 25;
-    
-    const focusScore = Math.min(100, energyScore + moodScore + 15);
-    
-    document.getElementById('focusScore').textContent = Math.round(focusScore) + '%';
-    
-    // Update progress ring
-    const progressRing = document.querySelector('.ring-progress');
-    const circumference = 314;
-    const offset = circumference - (focusScore / 100) * circumference;
-    progressRing.style.strokeDashoffset = offset;
-}
-
-// Time Block Scheduling
-function scheduleTimeBlock(hour) {
-    const currentMood = document.querySelector('.mood-option.active').dataset.mood;
-    const suggestions = aiSuggestions[currentMood];
-    const randomSuggestion = suggestions[Math.floor(Math.random() * suggestions.length)];
-    
-    alert(`Scheduled for ${hour + 8}:00 - ${randomSuggestion}`);
-}
-
-// Event Listeners
-function setupEventListeners() {
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-        setupVoiceRecognition();
-    } else {
-        document.getElementById('voiceBtn').style.display = 'none';
+function toggleTask(id) {
+    const task = tasks.find(task => task.id === id);
+    if (task) {
+        task.completed = !task.completed;
+        saveTasks();
+        loadTasks();
+        updateStats();
     }
+}
+
+function loadTasks() {
+    const taskList = document.getElementById('taskList');
+    taskList.innerHTML = '';
     
-    setupEnergyTracking();
-    setupMoodSelection();
-    
-    document.getElementById('aiAnalyzeBtn').addEventListener('click', () => {
-        const taskText = document.getElementById('smartTaskInput').value;
-        if (taskText) analyzeTaskWithAI(taskText);
+    tasks.forEach(task => {
+        const taskItem = document.createElement('div');
+        taskItem.className = `task-item ${task.completed ? 'completed' : ''}`;
+        taskItem.innerHTML = `
+            <span>${task.text}</span>
+            <div class="task-actions">
+                <button class="complete-btn" onclick="toggleTask(${task.id})">
+                    ${task.completed ? 'Undo' : 'Complete'}
+                </button>
+                <button class="delete-btn" onclick="deleteTask(${task.id})">Delete</button>
+            </div>
+        `;
+        taskList.appendChild(taskItem);
     });
+    
+    document.getElementById('totalTasks').textContent = tasks.length;
+    document.getElementById('completedTasks').textContent = tasks.filter(t => t.completed).length;
+}
+
+// Timer Functions
+function startTimer() {
+    if (!isTimerRunning) {
+        isTimerRunning = true;
+        timer = setInterval(updateTimer, 1000);
+    }
+}
+
+function pauseTimer() {
+    isTimerRunning = false;
+    clearInterval(timer);
+}
+
+function resetTimer() {
+    pauseTimer();
+    timerTime = 25 * 60;
+    updateTimerDisplay();
+}
+
+function updateTimer() {
+    if (timerTime > 0) {
+        timerTime--;
+        updateTimerDisplay();
+    } else {
+        pauseTimer();
+        sessionsCompleted++;
+        totalFocusTime += 25;
+        document.getElementById('sessionCount').textContent = sessionsCompleted;
+        updateStats();
+        alert('Timer completed! Take a 5-minute break.');
+        resetTimer();
+    }
+}
+
+function updateTimerDisplay() {
+    const minutes = Math.floor(timerTime / 60);
+    const seconds = timerTime % 60;
+    document.getElementById('timerDisplay').textContent = 
+        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+}
+
+// Notes Functions
+function saveNotes() {
+    const notes = document.getElementById('notesInput').value;
+    localStorage.setItem('productivityNotes', notes);
+    alert('Notes saved!');
+}
+
+function loadNotes() {
+    const savedNotes = localStorage.getItem('productivityNotes');
+    if (savedNotes) {
+        document.getElementById('notesInput').value = savedNotes;
+    }
+}
+
+// Habit Tracker
+function toggleHabit(index) {
+    const habitBtns = document.querySelectorAll('.habit-btn');
+    const btn = habitBtns[index];
+    btn.classList.toggle('completed');
+    btn.textContent = btn.classList.contains('completed') ? '✓' : '○';
+}
+
+// Stats Functions
+function updateStats() {
+    const completedTasks = tasks.filter(t => t.completed).length;
+    const totalTasks = tasks.length;
+    const productivityScore = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+    
+    const focusHours = Math.floor(totalFocusTime / 60);
+    const focusMinutes = totalFocusTime % 60;
+    
+    document.getElementById('focusTime').textContent = `${focusHours}h ${focusMinutes}m`;
+    document.getElementById('tasksCompleted').textContent = completedTasks;
+    document.getElementById('productivityScore').textContent = `${productivityScore}%`;
+}
+
+// Local Storage
+function saveTasks() {
+    localStorage.setItem('tasks', JSON.stringify(tasks));
 }
 
 // Initialize when page loads
 document.addEventListener('DOMContentLoaded', initDashboard);
+
+// Add task on Enter key
+document.getElementById('taskInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        addTask();
+    }
+});
