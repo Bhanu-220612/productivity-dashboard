@@ -1,81 +1,69 @@
-
-// Task Manager functionality
-let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+let tasks = [];
+let taskId = 1;
 
 function addTask() {
     const taskInput = document.getElementById('taskInput');
-    const text = taskInput.value.trim();
+    const taskText = taskInput.value.trim();
     
-    if (text === '') return;
+    if (taskText === '') return;
     
     const task = {
-        id: Date.now(),
-        text: text,
-        completed: false,
-        createdAt: new Date().toLocaleString()
+        id: taskId++,
+        text: taskText,
+        completed: false
     };
     
     tasks.push(task);
-    saveTasks();
-    renderTasks();
     taskInput.value = '';
+    updateTaskList();
     updateStats();
 }
 
-function deleteTask(id) {
-    tasks = tasks.filter(task => task.id !== id);
-    saveTasks();
-    renderTasks();
-    updateStats();
-}
-
-function toggleTask(id) {
-    tasks = tasks.map(task => 
-        task.id === id ? { ...task, completed: !task.completed } : task
-    );
-    saveTasks();
-    renderTasks();
-    updateStats();
-}
-
-function saveTasks() {
-    localStorage.setItem('tasks', JSON.stringify(tasks));
-}
-
-function renderTasks() {
+function updateTaskList() {
     const taskList = document.getElementById('taskList');
     taskList.innerHTML = '';
     
     tasks.forEach(task => {
         const li = document.createElement('li');
-        li.className = `task-item ${task.completed ? 'completed' : ''}`;
         li.innerHTML = `
-            <input type="checkbox" ${task.completed ? 'checked' : ''} 
-                   onchange="toggleTask(${task.id})">
-            <span class="task-text">${task.text}</span>
-            <button class="delete-btn" onclick="deleteTask(${task.id})">Delete</button>
+            <span style="${task.completed ? 'text-decoration: line-through; color: #888;' : ''}">
+                ${task.text}
+            </span>
+            <div>
+                <button onclick="completeTask(${task.id})">Complete</button>
+                <button onclick="deleteTask(${task.id})" style="background: #dc3545;">Delete</button>
+            </div>
         `;
         taskList.appendChild(li);
     });
 }
 
+function completeTask(id) {
+    const task = tasks.find(t => t.id === id);
+    if (task) {
+        task.completed = !task.completed;
+        updateTaskList();
+        updateStats();
+    }
+}
+
+function deleteTask(id) {
+    tasks = tasks.filter(t => t.id !== id);
+    updateTaskList();
+    updateStats();
+}
+
 function updateStats() {
     const totalTasks = tasks.length;
-    const completedTasks = tasks.filter(task => task.completed).length;
+    const completedTasks = tasks.filter(t => t.completed).length;
     
     document.getElementById('totalTasks').textContent = totalTasks;
     document.getElementById('completedTasks').textContent = completedTasks;
 }
 
-// Initialize the app
-document.addEventListener('DOMContentLoaded', function() {
-    renderTasks();
-    updateStats();
-    
-    // Enter key to add task
-    document.getElementById('taskInput').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            addTask();
-        }
-    });
+// Allow adding task with Enter key
+document.getElementById('taskInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        addTask();
+    }
 });

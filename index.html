@@ -13,20 +13,23 @@
             <p>Stay organized and productive!</p>
         </header>
 
-        <!-- Task Manager Section -->
-        <section class="task-manager">
-            <h2>📝 Task Manager</h2>
+        <section class="task-section">
+            <h2>Task Manager</h2>
+            <p>What needs to be done?</p>
+            
             <div class="task-input">
-                <input type="text" id="taskInput" placeholder="What needs to be done?">
+                <input type="text" id="taskInput" placeholder="Add a new task...">
                 <button onclick="addTask()">Add Task</button>
             </div>
-            <ul id="taskList" class="task-list"></ul>
+
+            <ul id="taskList">
+                <!-- Tasks will appear here -->
+            </ul>
         </section>
 
-        <!-- Stats Section -->
-        <section class="stats">
-            <h2>📊 Today's Stats</h2>
-            <div class="stats-grid">
+        <section class="stats-section">
+            <h2>Today's Stats</h2>
+            <div class="stats">
                 <div class="stat-card">
                     <h3 id="totalTasks">0</h3>
                     <p>Total Tasks</p>
